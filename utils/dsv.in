@@ -44,6 +44,12 @@
       (else
        (error "Wrong format" str)))))
 
+(define (remove-empty-rows table)
+  (remove (lambda (f)
+            (and (= (length f) 1)
+                 (string-null? (car f))))
+          table))
+
 (define (rc file delim fmt)
   "Get number of records in a FILE."
   (let ((p (open-input-file file)))
@@ -114,10 +120,7 @@
   "Pretty-print a FILE."
   (let* ((p     (open-input-file file))
          (delim (guess-file-delimiter file fmt))
-         (table (remove (lambda (f)
-                          (and (= (length f) 1)
-                               (string-null? (car f))))
-                        (dsv->scm p delim #:format fmt)))
+         (table (remove-empty-rows (dsv->scm p delim #:format fmt)))
          (bspec (borders->alist borders)))
     (format-table table bspec)))
 
@@ -136,7 +139,24 @@
     (format #t "Records:   ~a~%"
             (if guessed-delim
                 (rc file guessed-delim fmt)
-                ""))))
+                ""))
+    (let* ((table (remove-empty-rows
+                   (dsv->scm (open-input-file file)
+                             guessed-delim
+                             #:format fmt)))
+           (width (get-width table))
+           (wtable (let loop ((w   width)
+                              (col 1)
+                              (res '()))
+                     (if (not (null? w))
+                         (loop (cdr w)
+                               (1+ col)
+                               (cons (list (number->string col)
+                                           (number->string (car w)))
+                                     res))
+                         (reverse res)))))
+      (newline)
+      (format-table (cons '("column" "width") wtable) '()))))
 
 (define (print-delimiter file fmt)
   "Guess and print FILE delimiter."
