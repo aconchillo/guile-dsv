@@ -31,6 +31,7 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 rdelim)
              (ice-9 format)
+             (ice-9 common-list)
              (dsv))
 
 (define (string->dsv-format str)
@@ -57,6 +58,27 @@
              (or guessed-delim
                  (guess p)))))))
 
+
+(define (format-table table)
+  "Format file and print it."
+  (for-each (lambda (row)
+              (for-each (lambda (field)
+                          (format #t "~20a" field))
+                        row)
+              (newline))
+            table))
+
+(define (print-file file fmt)
+  "Pretty-print a FILE."
+  (let* ((p     (open-input-file file))
+         (delim (guess-file-delimiter file fmt))
+         (table (remove-if (lambda (f)
+                             (and (= (length f) 1)
+                                  (string-null? (car f))))
+                           (dsv->scm p delim #:format fmt))))
+    (format-table table)))
+
+
 (define (print-summary file fmt)
   "Print summary information for a FILE of format FMT."
   (let* ((p (open-input-file file))
@@ -117,7 +139,9 @@ Options:
      (summary-needed?
       (print-summary (car args) (string->dsv-format file-format)))
      (guess-delimiter?
-      (print-delimiter (car args) (string->dsv-format file-format))))
+      (print-delimiter (car args) (string->dsv-format file-format)))
+     (else
+      (print-file (car args) (string->dsv-format file-format))))
 
     (exit)))
 
