@@ -66,13 +66,13 @@
              (res  '()))
     (if (not (null? rows))
         (let* ((row (car rows))
-               (w   (map (cut string-length <>) row)))
+               (w   (map string-length row)))
           (cond
            ((null? res)
             (loop (cdr rows) w))
            (else
             (loop (cdr rows)
-                  (map (cut max <...>) res w)))))
+                  (map max res w)))))
         res)))
 
 (define (format-table table borders)
@@ -96,9 +96,7 @@
                                 (display hborder))
                               (newline)))))
     (for-each (lambda (row)
-                (for-each (cut format-field <> <>)
-                          row
-                          width)
+                (for-each format-field row width)
                 (newline)
                 (and hborder
                      (display-hborder)))
