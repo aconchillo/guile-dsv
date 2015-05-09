@@ -140,23 +140,22 @@
             (if guessed-delim
                 (rc file guessed-delim fmt)
                 ""))
-    (let* ((table (remove-empty-rows
-                   (dsv->scm (open-input-file file)
-                             guessed-delim
-                             #:format fmt)))
-           (width (get-width table))
-           (wtable (let loop ((w   width)
-                              (col 1)
-                              (res '()))
-                     (if (not (null? w))
-                         (loop (cdr w)
-                               (1+ col)
-                               (cons (list (number->string col)
-                                           (number->string (car w)))
-                                     res))
-                         (reverse res)))))
-      (newline)
-      (format-table (cons '("column" "width") wtable) '()))))
+    (newline)
+    (and guessed-delim
+         (let* ((table  (remove-empty-rows
+                         (dsv->scm (open-input-file file) guessed-delim
+                                   #:format fmt)))
+                (wtable (let loop ((w   (get-width table))
+                                   (col 1)
+                                   (res '()))
+                          (if (not (null? w))
+                              (loop (cdr w)
+                                    (1+ col)
+                                    (cons (list (number->string col)
+                                                (number->string (car w)))
+                                          res))
+                              (reverse res)))))
+           (format-table (cons '("column" "width") wtable) '())))))
 
 (define (print-delimiter file fmt)
   "Guess and print FILE delimiter."
