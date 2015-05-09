@@ -3,7 +3,7 @@
 # -*- mode: scheme; -*-
 !#
 
-;;; dsv.in -- Get various iformation from DSV files.
+;;; dsv.in -- Get various information from DSV files.
 
 ;; Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ;;
