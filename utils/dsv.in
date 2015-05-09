@@ -127,19 +127,19 @@
 
 (define (print-summary file fmt)
   "Print summary information for a FILE of format FMT."
-  (let ((guessed-delim (guess-file-delimiter file fmt)))
-    (format #t "File:      ~a~%" file)
-    (format #t "Format:    ~a~%" fmt)
-    (format #t "Delimiter: '~a'~a~%"
-            (or guessed-delim
-                "")
-            (if guessed-delim
-                (format #f " (0x~x)" (char->integer guessed-delim))
-                ""))
-    (format #t "Records:   ~a~%"
-            (if guessed-delim
-                (rc file guessed-delim fmt)
-                ""))
+  (let ((guessed-delim (guess-file-delimiter file fmt))
+        (f             (cut format #t <...>)))
+    (f "File:      ~a~%" file)
+    (f "Format:    ~a~%" fmt)
+    (f "Delimiter: '~a'~a~%"
+       (or guessed-delim "")
+       (if guessed-delim
+           (format #f " (0x~x)" (char->integer guessed-delim))
+           ""))
+    (f "Records:   ~a~%"
+       (if guessed-delim
+           (rc file guessed-delim fmt)
+           ""))
     (newline)
     (and guessed-delim
          (let* ((table  (remove-empty-rows
