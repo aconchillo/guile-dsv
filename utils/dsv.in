@@ -65,8 +65,7 @@
   (let loop ((rows table)
              (res  '()))
     (if (not (null? rows))
-        (let* ((row (car rows))
-               (w   (map string-length row)))
+        (let ((w (map string-length (car rows))))
           (cond
            ((null? res)
             (loop (cdr rows) w))
