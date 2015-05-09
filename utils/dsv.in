@@ -32,6 +32,7 @@
              (ice-9 rdelim)
              (ice-9 format)
              (ice-9 common-list)
+             (srfi  srfi-26)
              (dsv))
 
 (define (string->dsv-format str)
@@ -59,14 +60,34 @@
                  (guess p)))))))
 
 
+(define (get-width table)
+  "Get maximum field width for each row of TABLE."
+  (let loop ((rows table)
+             (res  '()))
+    (if (not (null? rows))
+        (let* ((row (car rows))
+               (w   (map (cut string-length <>) row)))
+          (cond
+           ((null? res)
+            (loop (cdr rows) w))
+           (else
+            (loop (cdr rows)
+                  (map (cut max <...>) res w)))))
+        res)))
+
 (define (format-table table)
   "Format file and print it."
-  (for-each (lambda (row)
-              (for-each (lambda (field)
-                          (format #t "~20a" field))
-                        row)
-              (newline))
-            table))
+  (let ((width        (get-width table))
+        (format-field (lambda (field width)
+                        "Print a FIELD in a column with given WIDTH."
+                        (format #t (format #f "~~~da" (+ width 5))
+                                field))))
+    (for-each (lambda (row)
+                (for-each (cut format-field <> <>)
+                          row
+                          width)
+                (newline))
+              table)))
 
 (define (print-file file fmt)
   "Pretty-print a FILE."
