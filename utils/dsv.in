@@ -31,7 +31,7 @@
 (use-modules (ice-9 getopt-long)
              (ice-9 rdelim)
              (ice-9 format)
-             (ice-9 common-list)
+             (srfi  srfi-1)
              (srfi  srfi-26)
              (dsv))
 
@@ -75,29 +75,52 @@
                   (map (cut max <...>) res w)))))
         res)))
 
-(define (format-table table)
+(define (format-table table borders)
   "Format file and print it."
-  (let ((width        (get-width table))
-        (format-field (lambda (field width)
-                        "Print a FIELD in a column with given WIDTH."
-                        (format #t (format #f "~~~da" (+ width 5))
-                                field))))
+  (let* ((padding 5)
+         (vborder      (car (or (assoc-ref borders "v") '(""))))
+         (hborder      (car (or (assoc-ref borders "h") '(#f))))
+         (width        (get-width table))
+         (format-field (lambda (field width)
+                         "Print a FIELD in a column with given WIDTH."
+                         (format #t (format #f "~~~da ~~a " (+ width padding))
+                                 field vborder)))
+         (display-hborder (lambda ()
+                            "Display a horisontal table border."
+                            (let ((total-width (+ (reduce + 0 width)
+                                                  (* (length width)
+                                                     (+ padding 3))
+                                                  -1)))
+                              (do ((i 0 (1+ i)))
+                                  ((= i total-width))
+                                (display hborder))
+                              (newline)))))
     (for-each (lambda (row)
                 (for-each (cut format-field <> <>)
                           row
                           width)
-                (newline))
+                (newline)
+                (and hborder
+                     (display-hborder)))
               table)))
 
-(define (print-file file fmt)
+(define (borders->alist borders)
+  "Convert BORDERS spec to an alist."
+  (if (not (string-null? borders))
+      (map (cut string-split <> #\=)
+           (car (dsv-string->scm borders #\,)))
+      '()))
+
+(define (print-file file fmt borders)
   "Pretty-print a FILE."
   (let* ((p     (open-input-file file))
          (delim (guess-file-delimiter file fmt))
-         (table (remove-if (lambda (f)
-                             (and (= (length f) 1)
-                                  (string-null? (car f))))
-                           (dsv->scm p delim #:format fmt))))
-    (format-table table)))
+         (table (remove (lambda (f)
+                          (and (= (length f) 1)
+                               (string-null? (car f))))
+                        (dsv->scm p delim #:format fmt)))
+         (bspec (borders->alist borders)))
+    (format-table table bspec)))
 
 
 (define (print-summary file fmt)
@@ -135,6 +158,11 @@ Options:
   --delimiter, -d <delim>  Set a delimiter.
   --file-format, -f <fmt>  Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
+  --table-borders, -b <spec>  Set table borders for printing.  Spec is expected
+                              to be a comma-separated list of key=value pairs,
+                              where possible keys are: \"v\" (vertical border),
+                              \"h\" (horizontal border).
+                              Example: \"v=|,h=-\"
   --guess-delimiter, -g    Guess file delimiter and print the result.
 ")
   (exit))
@@ -144,6 +172,7 @@ Options:
                         (summary         (single-char #\s) (value #f))
                         (delimiter       (single-char #\d) (value #t))
                         (file-format     (single-char #\f) (value #t))
+                        (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\g) (value #f))))
          (options (getopt-long args option-spec))
          ;; Options
@@ -152,6 +181,7 @@ Options:
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
          (delimiter         (option-ref options 'delimiter       #f))
+         (table-borders     (option-ref options 'table-borders   ""))
          (args              (option-ref options '()              #f)))
 
     (cond
@@ -162,7 +192,7 @@ Options:
      (guess-delimiter?
       (print-delimiter (car args) (string->dsv-format file-format)))
      (else
-      (print-file (car args) (string->dsv-format file-format))))
+      (print-file (car args) (string->dsv-format file-format) table-borders)))
 
     (exit)))
 
