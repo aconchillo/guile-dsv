@@ -173,7 +173,8 @@ Usage: dsv [options] <file>
 Options:
   --help, -h               Print this message and exit.
   --summary, -s            Print summary information for a file.
-  --delimiter, -d <delim>  Set a delimiter.
+  --delimiter, -D <delim>  Set a delimiter.
+  --guess-delimiter, -d    Guess file delimiter and print the result.
   --file-format, -f <fmt>  Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
   --table-borders, -b <spec>  Set table borders for printing.  Spec is expected
@@ -181,17 +182,16 @@ Options:
                               where possible keys are: \"v\" (vertical border),
                               \"h\" (horizontal border).
                               Example: \"v=|,h=-\"
-  --guess-delimiter, -g    Guess file delimiter and print the result.
 ")
   (exit))
 
 (define (main args)
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
-                        (delimiter       (single-char #\d) (value #t))
+                        (delimiter       (single-char #\D) (value #t))
                         (file-format     (single-char #\f) (value #t))
                         (table-borders   (single-char #\b) (value #t))
-                        (guess-delimiter (single-char #\g) (value #f))))
+                        (guess-delimiter (single-char #\d) (value #f))))
          (options (getopt-long args option-spec))
          ;; Options
          (help-needed?      (option-ref options 'help            #f))
