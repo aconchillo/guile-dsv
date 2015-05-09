@@ -124,8 +124,7 @@
 
 (define (print-summary file fmt)
   "Print summary information for a FILE of format FMT."
-  (let* ((p (open-input-file file))
-         (guessed-delim (guess-file-delimiter file fmt)))
+  (let ((guessed-delim (guess-file-delimiter file fmt)))
     (format #t "File:      ~a~%" file)
     (format #t "Format:    ~a~%" fmt)
     (format #t "Delimiter: '~a'~a~%"
