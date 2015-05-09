@@ -77,8 +77,8 @@
 (define (format-table table borders)
   "Format file and print it."
   (let* ((padding 5)
-         (vborder      (car (or (assoc-ref borders "v") '(""))))
-         (hborder      (car (or (assoc-ref borders "h") '(#f))))
+         (vborder      (or (assoc-ref borders "v") ""))
+         (hborder      (assoc-ref borders "h"))
          (width        (get-width table))
          (format-field (lambda (field width)
                          "Print a FIELD in a column with given WIDTH."
@@ -104,7 +104,9 @@
 (define (borders->alist borders)
   "Convert BORDERS spec to an alist."
   (if (not (string-null? borders))
-      (map (cut string-split <> #\=)
+      (map (lambda (s)
+             (let ((lst (string-split s #\=)))
+               (cons (car lst) (cadr lst))))
            (car (dsv-string->scm borders #\,)))
       '()))
 
