@@ -1,9 +1,9 @@
 ## Makefile.am -- Config file for GNU Automake.
 ##
-## Copyright (C) 2013, 2014 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+## Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
 ##
 ## This file is part of Guile-DSV.
-## 
+##
 ## Guile-DSV is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
 ## published by the Free Software Foundation, either version 3 of the
@@ -17,30 +17,22 @@
 ## You should have received a copy of the GNU General Public License
 ## along with Guile-DSV.  If not, see <http://www.gnu.org/licenses/>.
 
-ACLOCAL_AMFLAGS = -I build-aux
-
-SUBDIRS = am build-aux tests doc m4 modules utils
-
 EXTRA_DIST = \
-	.dir-locals.el	\
-	TODO
+	dsv.in
 
-gen-ChangeLog:
-	if test -d .git; then				\
-	  $(top_srcdir)/build-aux/gitlog-to-changelog	\
-	    2bea8c70..HEAD > $(distdir)/cl-t;		\
-	  rm -f $(distdir)/ChangeLog;			\
-	  mv $(distdir)/cl-t $(distdir)/ChangeLog;	\
-	fi
+bin_SCRIPTS = \
+	dsv
 
-dist-hook: gen-ChangeLog
-.PHONY: gen-ChangeLog
+substitute = sed -e 's,[@]GUILE[@],$(GUILE),g'
 
-clean-go:
-	-$(RM) $(GOBJECTS)
-.PHONY: clean-go
+SUFFIXES = .in
+
+.in:
+	$(substitute) "$^" > "$@.tmp" && 	\
+	chmod +x "$@.tmp" &&			\
+	mv "$@.tmp" "$@"
 
 CLEANFILES = \
-	$(GOBJECTS)
+	dsv
 
-# Makefile.am ends here
+## Makefile.am ends here.

@@ -1,0 +1,125 @@
+#!@GUILE@ \
+-e main
+# -*- mode: scheme; -*-
+!#
+
+;;; dsv.in -- Get various iformation from DSV files.
+
+;; Copyright (C) 2015 Artyom V. Poptsov <poptsov.artyom@gmail.com>
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; The program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with the program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+;;; Commentary:
+
+;; A handy tool to get various information from DSV files.
+
+
+;;; Code:
+
+(use-modules (ice-9 getopt-long)
+             (ice-9 rdelim)
+             (ice-9 format)
+             (dsv))
+
+(define (string->dsv-format str)
+  "Convert a string STR to a DSV format type."
+  (let ((fmt (string->symbol str)))
+    (case fmt
+      ((unix rfc4180)
+       fmt)
+      (else
+       (error "Wrong format" str)))))
+
+(define (rc file delim fmt)
+  "Get number of records in a FILE."
+  (let ((p (open-input-file file)))
+    (length (dsv->scm p delim #:format fmt))))
+
+
+(define (guess-file-delimiter file fmt)
+  "Guess delimiter for a file."
+  (let guess ((p (open-input-file file)))
+    (let ((line (read-line p)))
+      (and (not (eof-object? line))
+           (let ((guessed-delim  (guess-delimiter line #:format fmt)))
+             (or guessed-delim
+                 (guess p)))))))
+
+(define (print-summary file fmt)
+  "Print summary information for a FILE of format FMT."
+  (let* ((p (open-input-file file))
+         (guessed-delim (guess-file-delimiter file fmt)))
+    (format #t "File:      ~a~%" file)
+    (format #t "Format:    ~a~%" fmt)
+    (format #t "Delimiter: '~a'~a~%"
+            (or guessed-delim
+                "")
+            (if guessed-delim
+                (format #f " (0x~x)" (char->integer guessed-delim))
+                ""))
+    (format #t "Records:   ~a~%"
+            (if guessed-delim
+                (rc file guessed-delim fmt)
+                ""))))
+
+(define (print-delimiter file fmt)
+  "Guess and print FILE delimiter."
+  (let ((guessed-delim (guess-file-delimiter file fmt)))
+    (format #t "~a~%"
+            (if guessed-delim
+                guessed-delim
+                ""))))
+
+(define (print-help-and-exit)
+    (display "
+Usage: dsv [options] <file>
+
+Options:
+  --help, -h               Print this message and exit.
+  --summary, -s            Print summary information for a file.
+  --delimiter, -d <delim>  Set a delimiter.
+  --file-format, -f <fmt>  Set a file format.  Possible formats are:
+                             \"unix\" (default), \"rfc4180\"
+  --guess-delimiter, -g    Guess file delimiter and print the result.
+")
+  (exit))
+
+(define (main args)
+  (let* ((option-spec '((help            (single-char #\h) (value #f))
+                        (summary         (single-char #\s) (value #f))
+                        (delimiter       (single-char #\d) (value #t))
+                        (file-format     (single-char #\f) (value #t))
+                        (guess-delimiter (single-char #\g) (value #f))))
+         (options (getopt-long args option-spec))
+         ;; Options
+         (help-needed?      (option-ref options 'help            #f))
+         (summary-needed?   (option-ref options 'summary         #f))
+         (guess-delimiter?  (option-ref options 'guess-delimiter #f))
+         (file-format       (option-ref options 'file-format     "unix"))
+         (delimiter         (option-ref options 'delimiter       #f))
+         (args              (option-ref options '()              #f)))
+
+    (cond
+     (help-needed?
+      (print-help-and-exit))
+     (summary-needed?
+      (print-summary (car args) (string->dsv-format file-format)))
+     (guess-delimiter?
+      (print-delimiter (car args) (string->dsv-format file-format))))
+
+    (exit)))
+
+;;; dsv.in ends here
+
