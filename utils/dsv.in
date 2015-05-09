@@ -175,7 +175,7 @@ Options:
   --summary, -s              Print summary information for a file.
   --delimiter, -D <delim>    Set a delimiter.
   --guess-delimiter, -d      Guess file delimiter and print the result.
-  --file-format, -f <fmt>    Set a file format.  Possible formats are:
+  --file-format, -F <fmt>    Set a file format.  Possible formats are:
                              \"unix\" (default), \"rfc4180\"
   --table-borders, -b <spec> Set table borders for printing.  Spec is expected
                              to be a comma-separated list of key=value pairs,
@@ -189,7 +189,7 @@ Options:
   (let* ((option-spec '((help            (single-char #\h) (value #f))
                         (summary         (single-char #\s) (value #f))
                         (delimiter       (single-char #\D) (value #t))
-                        (file-format     (single-char #\f) (value #t))
+                        (file-format     (single-char #\F) (value #t))
                         (table-borders   (single-char #\b) (value #t))
                         (guess-delimiter (single-char #\d) (value #f))))
          (options (getopt-long args option-spec))
