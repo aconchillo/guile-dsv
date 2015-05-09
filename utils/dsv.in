@@ -160,10 +160,7 @@
 (define (print-delimiter file fmt)
   "Guess and print FILE delimiter."
   (let ((guessed-delim (guess-file-delimiter file fmt)))
-    (format #t "~a~%"
-            (if guessed-delim
-                guessed-delim
-                ""))))
+    (format #t "~a~%" (or guessed-delim ""))))
 
 (define (print-help-and-exit)
     (display "\
