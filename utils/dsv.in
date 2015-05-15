@@ -119,10 +119,14 @@
 (define (print-file file fmt borders)
   "Pretty-print a FILE."
   (let* ((p     (open-input-file file))
-         (delim (guess-file-delimiter file fmt))
-         (table (remove-empty-rows (dsv->scm p delim #:format fmt)))
-         (bspec (borders->alist borders)))
-    (format-table table bspec)))
+         (delim (guess-file-delimiter file fmt)))
+
+    (or delim
+        (error "Could not determine a file delimiter" file))
+
+    (let ((table (remove-empty-rows (dsv->scm p delim #:format fmt)))
+          (bspec (borders->alist borders)))
+      (format-table table bspec))))
 
 
 (define (print-summary file fmt)
