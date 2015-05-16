@@ -116,10 +116,10 @@
            (car (dsv-string->scm borders #\,)))
       '()))
 
-(define (print-file file fmt borders)
+(define (print-file file fmt borders delim)
   "Pretty-print a FILE."
   (let* ((p     (open-input-file file))
-         (delim (guess-file-delimiter file fmt)))
+         (delim (or delim (guess-file-delimiter file fmt))))
 
     (or delim
         (error "Could not determine a file delimiter" file))
@@ -129,9 +129,9 @@
       (format-table table bspec))))
 
 
-(define (print-summary file fmt)
+(define (print-summary file fmt delim)
   "Print summary information for a FILE of format FMT."
-  (let ((guessed-delim (guess-file-delimiter file fmt))
+  (let ((guessed-delim (or delim (guess-file-delimiter file fmt)))
         (f             (cut format #t <...>)))
     (f "File:      ~a~%" file)
     (f "Format:    ~a~%" fmt)
@@ -198,7 +198,8 @@ Options:
          (summary-needed?   (option-ref options 'summary         #f))
          (guess-delimiter?  (option-ref options 'guess-delimiter #f))
          (file-format       (option-ref options 'file-format     "unix"))
-         (delimiter         (option-ref options 'delimiter       #f))
+         (delimiter         (and=> (option-ref options 'delimiter #f)
+                                   (cut string-ref <> 0)))
          (table-borders     (option-ref options 'table-borders   ""))
          (args              (option-ref options '()              #f)))
 
@@ -206,11 +207,12 @@ Options:
      (help-needed?
       (print-help-and-exit))
      (summary-needed?
-      (print-summary (car args) (string->dsv-format file-format)))
+      (print-summary (car args) (string->dsv-format file-format) delimiter))
      (guess-delimiter?
       (print-delimiter (car args) (string->dsv-format file-format)))
      (else
-      (print-file (car args) (string->dsv-format file-format) table-borders)))
+      (print-file (car args) (string->dsv-format file-format) table-borders
+                  delimiter)))
 
     (exit)))
 
