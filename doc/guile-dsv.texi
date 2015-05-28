@@ -307,7 +307,8 @@ Guile-DSV comes with a command-line tool that -- sure enough -- is working
 with DSV files.  The default behaviour of the tool is to print a formatted
 table from a given file to stdout.
 
-Let's say we have a file @file{test.dsv} that contains the following table:
+Let's say you have a file @file{example.dsv} that contains the following
+table:
 
 @example
 foo:bar:baz
@@ -315,10 +316,10 @@ a:b:c
 1:2:3
 @end example
 
-Then invoking of @command{dsv test.dsv} will give you the following output:
+Then invoking of @command{dsv example.dsv} will give you the following output:
 
 @example
-$ dsv test.dsv
+$ dsv example.dsv
 foo       bar       baz       
 a         b         c         
 1         2         3
@@ -339,8 +340,8 @@ Print a summary of the command-line options and exit.
 Print summary information for a file.  For example:
 
 @example
-$ dsv -s test-table.dsv
-File:      test-table.dsv
+$ dsv -s example.dsv
+File:      example.dsv
 Format:    unix
 Delimiter: ':' (0x3a)
 Records:   3
@@ -373,7 +374,7 @@ of key=value pairs, where possible keys are: ``v'' (vertical border), ``h''
 (horizontal border).  Example:
 
 @example
-$ dsv -b "v=|,h=-" test-table.dsv   
+$ dsv -b "v=|,h=-" example.dsv   
 foo      | bar      | baz      | 
 --------------------------------
 a        | b        | c        | 
