@@ -56,6 +56,7 @@ Documentation License.''
 * Introduction::
 * Installation::
 * API Reference::
+* DSV Tool:: A command-line tool for working with DSV files.
 
 Appendices
 
@@ -298,6 +299,90 @@ Enable or disable debugging traces by setting the debug mode to an
 
 By default the debug mode is disabled.
 @end deffn
+
+@node DSV Tool
+@chapter DSV Tool
+
+Guile-DSV comes with a command-line tool that -- sure enough -- is working
+with DSV files.  The default behaviour of the tool is to print a formatted
+table from a given file to stdout.
+
+Let's say we have a file @file{test.dsv} that contains the following table:
+
+@example
+foo:bar:baz
+a:b:c
+1:2:3
+@end example
+
+Then invoking of @command{dsv test.dsv} will give you the following output:
+
+@example
+$ dsv test.dsv
+foo       bar       baz       
+a         b         c         
+1         2         3
+@end example
+
+@section Options
+
+Possible options are:
+
+@table @option
+
+@item --help
+@itemx -h
+Print a summary of the command-line options and exit.
+
+@item --summary
+@itemx -s
+Print summary information for a file.  For example:
+
+@example
+$ dsv -s test-table.dsv
+File:      test-table.dsv
+Format:    unix
+Delimiter: ':' (0x3a)
+Records:   3
+
+column       width       
+1            3           
+2            3           
+3            3
+@end example
+
+Where ``column'' specifies a column number and ``width'' is the maximum width
+of the column content.
+
+@item --delimiter DELIMITER
+@itemx -D DELIMITER
+Set a delimiter.
+
+@item --guess-delimiter
+@itemx -d
+Guess a file delimiter and print the result.
+
+@item --file-format FORMAT
+@itemx -F FORMAT
+Set a file format.  Possible formats are: ``unix'' (default), ``rfc4180''.
+
+@item --table-borders BORDERS-SPEC
+@itemx -b BORDERS-SPEC
+Set table borders for printing.  Spec is expected to be a comma-separated list
+of key=value pairs, where possible keys are: ``v'' (vertical border), ``h''
+(horizontal border).  Example:
+
+@example
+$ dsv -b "v=|,h=-" test-table.dsv   
+foo      | bar      | baz      | 
+--------------------------------
+a        | b        | c        | 
+--------------------------------
+1        | 2        | 3        | 
+--------------------------------
+@end example
+
+@end table
 
 @node GNU Free Documentation License
 @appendix GNU Free Documentation License
