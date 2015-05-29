@@ -383,6 +383,17 @@ a        | b        | c        |
 --------------------------------
 @end example
 
+@item --to TARGET-FORMAT
+@itemx -t TARGET-FORMAT
+Convert a table to a specified format.  E.g.:
+
+@example
+$ dsv --to rfc4180 example.dsv
+foo,bar,baz
+a,b,c
+1,2,3
+@end example
+
 @end table
 
 @node GNU Free Documentation License
