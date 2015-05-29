@@ -38,6 +38,9 @@ Guile modules, in =${GUILE_SITE}=:
  - dsv/builder.scm
  - dsv/common.scm
 
+Programs, in =${prefix}/bin/dsv=:
+ - dsv
+
 All the modules will be compiled and produced .go files will be installed to
 =site-ccache= directory which is something like this:
 =${libdir}/guile/2.0/site-ccache/=.

@@ -7,6 +7,9 @@ Copyright (C) Artyom V. Poptsov <poptsov.artyom@gmail.com>
   are permitted in any medium without royalty provided the copyright
   notice and this notice are preserved.
 
+* Unreleased
+** Add a DSV tool
+   Add a console tool for working with DSV files.
 * Changes in version 0.2.0 (2015-04-16)
 ** API change
    Procedures were renamed:
